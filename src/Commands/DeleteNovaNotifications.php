@@ -16,7 +16,7 @@ class DeleteNovaNotifications extends Command
     /**
      * @var string
      */
-    protected $signature = 'nova:delete-notifications {--clean}';
+    protected $signature = 'nova:delete-notifications {--clean} {--all}';
 
 
     /**
@@ -26,6 +26,13 @@ class DeleteNovaNotifications extends Command
      */
     public function handle(): void
     {
+        if ($this->option('all')) {
+            $total = $this->deleteAllNotifications();
+
+            $this->info($total . ' notifications deleted!');
+
+            return;
+        }
         $total = $this->deleteReadNotifications();
 
         $this->info('Deleted ' . $total . ' read messages');
@@ -35,6 +42,17 @@ class DeleteNovaNotifications extends Command
 
             $this->info('Deleted ' . $total . ' messages');
         }
+    }
+
+    /**
+     * @return int
+     */
+    public function deleteAllNotifications(): int
+    {
+        $total = Notification::count();
+        Notification::truncate();
+
+        return $total;
     }
 
     /**
